@@ -1,0 +1,4 @@
+module test-vector-r (test)
+
+import vector.test (test)
+import vector-r

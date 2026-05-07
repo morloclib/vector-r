@@ -1,0 +1,29 @@
+module vector-r (*)
+
+import vector
+import root-r
+
+-- Vector shares its wire form with List; in R, both are R atomic vectors
+-- (the runtime form chosen depends on the element type at unpack time).
+-- The phantom Nat parameter is dropped at runtime ($2 skips it).
+type R => ( Vector (n :: Nat) Bool    ) = "logical"   n Bool
+type R => ( Vector (n :: Nat) Str     ) = "character" n Str
+type R => ( Vector (n :: Nat) Int     ) = "numeric"   n Int
+type R => ( Vector (n :: Nat) Int64   ) = "numeric"   n Int64
+type R => ( Vector (n :: Nat) Int32   ) = "integer"   n Int32
+type R => ( Vector (n :: Nat) Int16   ) = "integer"   n Int16
+type R => ( Vector (n :: Nat) Int8    ) = "integer"   n Int8
+type R => ( Vector (n :: Nat) UInt64  ) = "numeric"   n UInt64
+type R => ( Vector (n :: Nat) UInt32  ) = "numeric"   n UInt32
+type R => ( Vector (n :: Nat) UInt16  ) = "integer"   n UInt16
+type R => ( Vector (n :: Nat) Real    ) = "numeric"   n Real
+type R => ( Vector (n :: Nat) Float64 ) = "numeric"   n Float64
+type R => ( Vector (n :: Nat) Float32 ) = "numeric"   n Float32
+type R => ( Vector (n :: Nat) UInt8   ) = "raw"       n UInt8
+type R => ( Vector (n :: Nat) a       ) = "list"      n a
+
+source R from "R/vector.R"
+    ( "morloc_zeros1" as zeros1
+    , "morloc_ones1"  as ones1
+    , "morloc_fill1"  as fill1
+    )
