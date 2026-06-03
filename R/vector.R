@@ -80,3 +80,52 @@ morloc_vec_le <- function(xs, ys) {
   }
   length(xs) <= length(ys)
 }
+
+## Element access via Indexable. Morloc passes 0-based indices.
+## Index arrives as ?Int64 to match __to_index__'s return shape; a NULL
+## index has no semantic meaning at runtime. Negative indices wrap from
+## the end (Python semantics), matching root-r's morloc_at.
+morloc_vec_at <- function(i, xs) {
+  if (is.null(i)) stop("morloc_vec_at: index is NULL")
+  if (i < 0) i <- i + length(xs)
+  idx <- i + 1L
+  if (is.list(xs)) xs[[idx]] else xs[idx]
+}
+
+## Python-style slice with optional bounds. start/stop/step may each be
+## NULL (passed as morloc Null). step 0 is a runtime error per the
+## Sliceable contract. Mirrors root-r's morloc_slice in arithmetic
+## style (numeric not integer, seq not seq.int, xs[0] for empty) since
+## that path is exercised heavily by the List tests and has shaken out
+## R's empty-vector subscript quirks.
+morloc_vec_slice <- function(start, stop, step, xs) {
+  n <- as.numeric(length(xs))
+  k <- if (is.null(step)) 1 else as.numeric(step)
+  if (k == 0) stop("slice step cannot be zero")
+  if (k > 0) {
+    i <- if (is.null(start)) 0 else as.numeric(start)
+    j <- if (is.null(stop))  n else as.numeric(stop)
+  } else {
+    i <- if (is.null(start)) n - 1 else as.numeric(start)
+    j <- if (is.null(stop))  -1    else as.numeric(stop)
+  }
+  if (i < 0 && !is.null(start)) i <- i + n
+  if (j < 0 && !is.null(stop))  j <- j + n
+  if (k > 0) {
+    i <- max(0, min(i, n))
+    j <- max(0, min(j, n))
+  } else {
+    i <- max(-1, min(i, n - 1))
+    j <- max(-1, min(j, n - 1))
+  }
+  idx <- if (k > 0) {
+    if (i >= j) numeric(0) else seq(i, j - 1, by = k)
+  } else {
+    if (i <= j) numeric(0) else seq(i, j + 1, by = k)
+  }
+  if (length(idx) == 0) {
+    xs[0]
+  } else {
+    xs[idx + 1]
+  }
+}
