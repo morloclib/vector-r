@@ -8,17 +8,17 @@ import root-r
 type R => ( Vector (n :: Nat) Bool    ) = "logical"   n Bool
 type R => ( Vector (n :: Nat) Str     ) = "character" n Str
 type R => ( Vector (n :: Nat) Int     ) = "numeric"   n Int
-type R => ( Vector (n :: Nat) Int64   ) = "numeric"   n Int64
-type R => ( Vector (n :: Nat) Int32   ) = "integer"   n Int32
-type R => ( Vector (n :: Nat) Int16   ) = "integer"   n Int16
-type R => ( Vector (n :: Nat) Int8    ) = "integer"   n Int8
-type R => ( Vector (n :: Nat) UInt64  ) = "numeric"   n UInt64
-type R => ( Vector (n :: Nat) UInt32  ) = "numeric"   n UInt32
-type R => ( Vector (n :: Nat) UInt16  ) = "integer"   n UInt16
+type R => ( Vector (n :: Nat) I64   ) = "numeric"   n I64
+type R => ( Vector (n :: Nat) I32   ) = "integer"   n I32
+type R => ( Vector (n :: Nat) I16   ) = "integer"   n I16
+type R => ( Vector (n :: Nat) I8    ) = "integer"   n I8
+type R => ( Vector (n :: Nat) U64  ) = "numeric"   n U64
+type R => ( Vector (n :: Nat) U32  ) = "numeric"   n U32
+type R => ( Vector (n :: Nat) U16  ) = "integer"   n U16
 type R => ( Vector (n :: Nat) Real    ) = "numeric"   n Real
-type R => ( Vector (n :: Nat) Float64 ) = "numeric"   n Float64
-type R => ( Vector (n :: Nat) Float32 ) = "numeric"   n Float32
-type R => ( Vector (n :: Nat) UInt8   ) = "raw"       n UInt8
+type R => ( Vector (n :: Nat) F64 ) = "numeric"   n F64
+type R => ( Vector (n :: Nat) F32 ) = "numeric"   n F32
+type R => ( Vector (n :: Nat) U8   ) = "raw"       n U8
 type R => ( Vector (n :: Nat) a       ) = "list"      n a
 
 source R from "R/vector.R"
