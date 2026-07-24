@@ -25,6 +25,8 @@ morloc_unpackVector <- function(x) {
 ## back to a list and downstream consumers handle the boxing.
 morloc_vec_concat <- function(xs, ys) c(xs, ys)
 
+morloc_vec_size <- function(xs) length(xs)
+
 morloc_vec_map <- function(f, xs) {
   if (length(xs) == 0) return(xs)
   out <- lapply(xs, f)
