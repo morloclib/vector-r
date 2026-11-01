@@ -23,24 +23,50 @@ morloc_unpackVector <- function(x) {
 ## Typeclass-method backends for Vector. Element-wise apply preserves the
 ## R atomic-vector form for primitive cases; otherwise the result falls
 ## back to a list and downstream consumers handle the boxing.
-morloc_vec_concat <- function(xs, ys) c(xs, ys)
+## A Vector of a nullary data type is raw: its constructor tags, with the
+## constructor names in a levels attribute. Its elements are the factor
+## values they stand for; subsetting it keeps the levels.
+.morloc_vec_tags <- function(xs) is.raw(xs) && !is.null(attr(xs, "levels"))
+.morloc_vec_elems <- function(xs) {
+  if (!.morloc_vec_tags(xs)) return(xs)
+  lv <- attr(xs, "levels")
+  factor(lv[as.integer(xs) + 1L], levels = lv, ordered = TRUE)
+}
+.morloc_vec_keep <- function(out, xs) {
+  if (.morloc_vec_tags(xs)) attr(out, "levels") <- attr(xs, "levels")
+  out
+}
+
+morloc_vec_concat <- function(xs, ys) .morloc_vec_keep(c(xs, ys), xs)
 
 morloc_vec_size <- function(xs) length(xs)
 
 morloc_vec_map <- function(f, xs) {
   if (length(xs) == 0) return(xs)
-  out <- lapply(xs, f)
+  out <- lapply(.morloc_vec_elems(xs), f)
   if (all(vapply(out, function(y) is.atomic(y) && length(y) == 1L, logical(1)))) {
+    # unlist drops the class of a bit64 integer64, leaving its raw bits as
+    # doubles.
+    if (any(vapply(out, inherits, logical(1), "integer64"))) {
+      return(do.call(c, lapply(out, bit64::as.integer64)))
+    }
+    # unlist turns factors into an unordered factor.
+    if (all(vapply(out, is.factor, logical(1)))) {
+      first <- out[[1]]
+      return(factor(vapply(out, as.character, character(1)),
+                    levels = levels(first), ordered = is.ordered(first)))
+    }
     return(unlist(out, use.names = FALSE))
   }
   out
 }
 
 morloc_vec_fold <- function(f, init, xs) {
-  Reduce(f = f, x = xs, init = init, accumulate = FALSE)
+  Reduce(f = f, x = .morloc_vec_elems(xs), init = init, accumulate = FALSE)
 }
 
 morloc_vec_fold1 <- function(f, xs) {
+  xs <- .morloc_vec_elems(xs)
   acc <- xs[[1]]
   if (length(xs) > 1) {
     for (i in 2:length(xs)) acc <- f(acc, xs[[i]])
@@ -91,7 +117,7 @@ morloc_vec_at <- function(i, xs) {
   if (is.null(i)) stop("morloc_vec_at: index is NULL")
   if (i < 0) i <- i + length(xs)
   idx <- i + 1L
-  if (is.list(xs)) xs[[idx]] else xs[idx]
+  if (is.list(xs)) xs[[idx]] else .morloc_vec_elems(xs)[idx]
 }
 
 ## Python-style slice with optional bounds. start/stop/step may each be
@@ -125,9 +151,6 @@ morloc_vec_slice <- function(start, stop, step, xs) {
   } else {
     if (i <= j) numeric(0) else seq(i, j + 1, by = k)
   }
-  if (length(idx) == 0) {
-    xs[0]
-  } else {
-    xs[idx + 1]
-  }
+  out <- if (length(idx) == 0) xs[0] else xs[idx + 1]
+  .morloc_vec_keep(out, xs)
 }

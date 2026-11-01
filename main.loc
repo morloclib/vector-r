@@ -4,7 +4,9 @@ import vector
 import root-r
 
 -- Vector shares its wire form with List; in R, both are R atomic vectors
--- (the runtime form chosen depends on the element type at unpack time).
+-- (the runtime form chosen depends on the element type at unpack time). The
+-- "vector" form makes a Vector of a nullary data type raw, where a list of
+-- one is a factor.
 type R => ( Vector (n :: Nat) Bool    ) = "logical"   n Bool
 type R => ( Vector (n :: Nat) Str     ) = "character" n Str
 type R => ( Vector (n :: Nat) Int     ) = "numeric"   n Int
@@ -19,7 +21,7 @@ type R => ( Vector (n :: Nat) Real    ) = "numeric"   n Real
 type R => ( Vector (n :: Nat) F64 ) = "numeric"   n F64
 type R => ( Vector (n :: Nat) F32 ) = "numeric"   n F32
 type R => ( Vector (n :: Nat) U8   ) = "raw"       n U8
-type R => ( Vector (n :: Nat) a       ) = "list"      n a
+type R => ( Vector (n :: Nat) a       ) = "vector"    n a
 
 source R from "R/vector.R"
     ( "morloc_zeros1" as zeros1
