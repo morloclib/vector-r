@@ -58,10 +58,15 @@ instance Sizeable (Vector n a) where
   %inline source R from "R/vector.R" ("morloc_vec_size" as size)
 
 instance Eq (Vector n a) where
-  %inline source R from "R/vector.R" ("morloc_vec_eq" as (==))
+  %inline source R from "R/vector.R" ("morloc_vec_eq" as (==), "morloc_vec_ne" as (!=))
 
 instance Ord (Vector n a) where
-  %inline source R from "R/vector.R" ("morloc_vec_le" as (<=))
+  %inline source R from "R/vector.R"
+    ( "morloc_vec_lt" as (<)
+    , "morloc_vec_le" as (<=)
+    , "morloc_vec_gt" as (>)
+    , "morloc_vec_ge" as (>=)
+    )
 
 -- Vector packs as an R @list@ on the wire; the per-language form is
 -- an R atomic vector (numeric / integer / logical / ...).

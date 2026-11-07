@@ -109,6 +109,11 @@ morloc_vec_le <- function(xs, ys) {
   length(xs) <= length(ys)
 }
 
+morloc_vec_ne <- function(xs, ys) !morloc_vec_eq(xs, ys)
+morloc_vec_lt <- function(xs, ys) morloc_vec_le(xs, ys) && !morloc_vec_le(ys, xs)
+morloc_vec_gt <- function(xs, ys) morloc_vec_lt(ys, xs)
+morloc_vec_ge <- function(xs, ys) morloc_vec_le(ys, xs)
+
 ## Element access via Indexable. Morloc passes 0-based indices.
 ## Index arrives as ?Int64 to match __to_index__'s return shape; a NULL
 ## index has no semantic meaning at runtime. Negative indices wrap from
